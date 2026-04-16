@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sky Lab — App</title>
+    <meta
+      name="description"
+      content="A small single-page web app: draw constellations, save them locally, and get creative naming prompts."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #ffffff;
+        --panel: rgba(29, 78, 216, 0.06);
+        --text: #0b1b3a;
+        --muted: rgba(11, 27, 58, 0.72);
+        --border: rgba(29, 78, 216, 0.2);
+        --accent: #1d4ed8;
+        --accent-2: #60a5fa;
+        --danger: #b91c1c;
+        --shadow: 0 12px 36px rgba(2, 6, 23, 0.09);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 4.75rem;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial;
+        line-height: 1.6;
+        color: var(--text);
+        background:
+          radial-gradient(900px 520px at 20% 0%, rgba(29, 78, 216, 0.16), transparent 60%),
+          radial-gradient(760px 520px at 90% 15%, rgba(96, 165, 250, 0.22), transparent 65%),
+          var(--bg);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .skip-link {
+        position: absolute;
+        left: -999px;
+        top: 10px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+      }
+
+      .skip-link:focus {
+        left: 12px;
+        outline: none;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--border);
+        background: color-mix(in oklab, var(--bg) 92%, var(--accent));
+        backdrop-filter: blur(10px);
+      }
+
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 18px 18px;
+      }
+
+      .top {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+      }
+
+      .brand h1 {
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.75);
+        padding: 2px 10px;
+        border-radius: 999px;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent-2);
+        box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent-2) 24%, transparent);
+      }
+
+      nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .navlink {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 10px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        color: var(--text);
+      }
+
+      .navlink:hover,
+      .navlink:focus-visible {
+        outline: none;
+        text-decoration: none;
+        border-color: var(--border);
+        background: rgba(255, 255, 255, 0.65);
+      }
+
+      main {
+        flex: 1 0 auto;
+      }
+
+      .hero {
+        display: grid;
+        gap: 12px;
+        border: 1px solid var(--border);
+        background: linear-gradient(135deg, color-mix(in oklab, var(--panel) 88%, transparent), transparent);
+        border-radius: 18px;
+        padding: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero h2 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      @media (min-width: 980px) {
+        .grid {
+          grid-template-columns: 1.3fr 0.7fr;
+          align-items: start;
+        }
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(10px);
+        border-radius: 18px;
+        padding: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 16px;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .controls {
+        display: grid;
+        gap: 10px;
+      }
+
+      .segmented {
+        display: inline-flex;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.55);
+      }
+
+      .segmented button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        padding: 8px 10px;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .segmented button[aria-pressed="true"] {
+        background: color-mix(in oklab, var(--accent) 12%, transparent);
+        color: color-mix(in oklab, var(--text) 82%, var(--accent));
+      }
+
+      .segmented button:focus-visible {
+        outline: 3px solid color-mix(in oklab, var(--accent) 35%, transparent);
+        outline-offset: -2px;
+      }
+
+      label {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      input[type="text"],
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text);
+        font: inherit;
+      }
+
+      textarea {
+        min-height: 76px;
+        resize: vertical;
+      }
+
+      input:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid color-mix(in oklab, var(--accent) 30%, transparent);
+        outline-offset: 2px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--text);
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .btn:hover,
+      .btn:focus-visible {
+        outline: none;
+        text-decoration: none;
+        border-color: color-mix(in oklab, var(--accent) 70%, var(--border));
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .btn.primary {
+        background: color-mix(in oklab, var(--accent) 14%, rgba(255, 255, 255, 0.6));
+        border-color: color-mix(in oklab, var(--accent) 40%, var(--border));
+      }
+
+      .btn.danger {
+        border-color: color-mix(in oklab, var(--danger) 40%, var(--border));
+      }
+
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .canvas-wrap {
+        display: grid;
+        gap: 10px;
+      }
+
+      canvas {
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background:
+          radial-gradient(600px 320px at 10% 0%, rgba(29, 78, 216, 0.10), transparent 60%),
+          radial-gradient(420px 280px at 95% 10%, rgba(96, 165, 250, 0.16), transparent 62%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.88));
+      }
+
+      .hint {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .kbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .kbd {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .kbd kbd {
+        font-family:
+          ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Monaco,
+          Consolas,
+          "Liberation Mono",
+          "Courier New",
+          monospace;
+        font-size: 12px;
+        padding: 2px 7px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--text);
+      }
+
+      .list {
+        display: grid;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .item {
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.75);
+        border-radius: 14px;
+        padding: 12px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .item h4 {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .item .meta {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .item .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      footer {
+        border-top: 1px solid var(--border);
+        margin-top: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header>
+      <div class="wrap top">
+        <div class="brand">
+          <h1>Sky Lab</h1>
+          <span class="badge"><span class="dot" aria-hidden="true"></span> AI-assisted mini app</span>
+        </div>
+        <nav aria-label="Site">
+          <a class="navlink" href="index.html">Main</a>
+          <a class="navlink" href="resume.html">Résumé</a>
+          <a class="navlink" href="scratch.html">Scratch</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="wrap">
+        <section class="hero" aria-label="Intro">
+          <h2>Draw your own constellations</h2>
+          <p class="muted">
+            Click to place stars, connect them into a shape, then save it to a mini “sky log” (stored on this
+            device). Use the prompt button to get a creative name idea.
+          </p>
+          <div class="kbar" aria-label="Keyboard hints">
+            <span class="kbd"><kbd>P</kbd> place mode</span>
+            <span class="kbd"><kbd>C</kbd> connect mode</span>
+            <span class="kbd"><kbd>U</kbd> undo</span>
+            <span class="kbd"><kbd>Esc</kbd> clear selection</span>
+          </div>
+        </section>
+
+        <div class="grid">
+          <section class="card" aria-label="Canvas">
+            <h3>Sky canvas</h3>
+            <div class="canvas-wrap">
+              <div class="row" aria-label="Mode controls">
+                <div class="segmented" role="group" aria-label="Edit mode">
+                  <button id="modePlace" type="button" aria-pressed="true">Place</button>
+                  <button id="modeConnect" type="button" aria-pressed="false">Connect</button>
+                </div>
+                <button id="undoBtn" class="btn" type="button">Undo</button>
+                <button id="clearBtn" class="btn danger" type="button">Clear canvas</button>
+                <button id="randomizeBtn" class="btn" type="button">Sprinkle stars</button>
+              </div>
+
+              <canvas id="sky" width="980" height="520" aria-label="Canvas to place and connect stars"></canvas>
+
+              <div class="row">
+                <div class="hint" id="status" role="status" aria-live="polite">
+                  Place mode: click anywhere to add a star.
+                </div>
+                <div class="hint" id="counts" aria-label="Counts"></div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="card" aria-label="Save and library">
+            <h3>Save to your sky log</h3>
+            <div class="controls">
+              <div>
+                <label for="name">Constellation name</label>
+                <input id="name" type="text" placeholder="e.g., The Blue Kite" autocomplete="off" />
+              </div>
+              <div>
+                <label for="notes">Notes (optional)</label>
+                <textarea id="notes" placeholder="What does it look like? What’s the story?"></textarea>
+              </div>
+              <div class="row">
+                <button id="promptBtn" class="btn" type="button">Name prompt</button>
+                <button id="saveBtn" class="btn primary" type="button">Save</button>
+              </div>
+              <div class="row">
+                <button id="exportBtn" class="btn" type="button">Export JSON</button>
+                <label class="btn" for="importFile" style="cursor: pointer">
+                  Import JSON
+                  <input id="importFile" class="sr-only" type="file" accept="application/json" />
+                </label>
+              </div>
+              <p class="hint muted">
+                Privacy note: saves use <code>localStorage</code> in your browser (nothing is uploaded).
+              </p>
+            </div>
+
+            <h3 style="margin-top: 16px">Saved constellations</h3>
+            <div id="library" class="list" aria-label="Saved constellations list"></div>
+            <p id="empty" class="hint muted">No saved constellations yet.</p>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <p class="muted" style="margin: 0">
+          Tip: If you want a “daily challenge”, create one constellation a day and export your log at the end of
+          the week.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = "jeevu_sky_lab_v1";
+
+        const canvas = document.getElementById("sky");
+        const ctx = canvas.getContext("2d", { alpha: true });
+
+        const modePlaceBtn = document.getElementById("modePlace");
+        const modeConnectBtn = document.getElementById("modeConnect");
+        const undoBtn = document.getElementById("undoBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const randomizeBtn = document.getElementById("randomizeBtn");
+        const statusEl = document.getElementById("status");
+        const countsEl = document.getElementById("counts");
+
+        const nameInput = document.getElementById("name");
+        const notesInput = document.getElementById("notes");
+        const promptBtn = document.getElementById("promptBtn");
+        const saveBtn = document.getElementById("saveBtn");
+        const exportBtn = document.getElementById("exportBtn");
+        const importFile = document.getElementById("importFile");
+        const libraryEl = document.getElementById("library");
+        const emptyEl = document.getElementById("empty");
+
+        let mode = "place"; // "place" | "connect"
+        let stars = [];
+        let connections = []; // [{a, b}]
+        let selected = []; // indices in order
+        let history = [];
+        let memoryStorage = null;
+
+        function uuid() {
+          if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") {
+            return globalThis.crypto.randomUUID();
+          }
+          const bytes = new Uint8Array(16);
+          for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+          bytes[6] = (bytes[6] & 0x0f) | 0x40; // v4
+          bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant
+          const hex = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+          return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+        }
+
+        function storageGet(key) {
+          try {
+            return localStorage.getItem(key);
+          } catch {
+            return memoryStorage;
+          }
+        }
+
+        function storageSet(key, value) {
+          try {
+            localStorage.setItem(key, value);
+          } catch {
+            memoryStorage = value;
+          }
+        }
+
+        function nowIso() {
+          return new Date().toISOString();
+        }
+
+        function clamp(n, min, max) {
+          return Math.max(min, Math.min(max, n));
+        }
+
+        function randInt(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function distance(a, b) {
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function pushHistory() {
+          history.push({
+            stars: stars.map((s) => ({ ...s })),
+            connections: connections.map((c) => ({ ...c })),
+            selected: [...selected],
+          });
+          if (history.length > 80) history.shift();
+        }
+
+        function undo() {
+          const prev = history.pop();
+          if (!prev) return;
+          stars = prev.stars;
+          connections = prev.connections;
+          selected = prev.selected;
+          draw();
+          updateCounts();
+        }
+
+        function setMode(nextMode) {
+          mode = nextMode;
+          const placing = mode === "place";
+          modePlaceBtn.setAttribute("aria-pressed", placing ? "true" : "false");
+          modeConnectBtn.setAttribute("aria-pressed", placing ? "false" : "true");
+          selected = [];
+          statusEl.textContent = placing
+            ? "Place mode: click anywhere to add a star."
+            : "Connect mode: click stars to select them, then click another star to connect.";
+          draw();
+        }
+
+        function clearSelection() {
+          selected = [];
+          draw();
+        }
+
+        function clearAll() {
+          stars = [];
+          connections = [];
+          selected = [];
+          history = [];
+          draw();
+          updateCounts();
+          statusEl.textContent = "Cleared. Place mode: click anywhere to add a star.";
+          setMode("place");
+        }
+
+        function getMousePos(evt) {
+          const rect = canvas.getBoundingClientRect();
+          const x = ((evt.clientX - rect.left) / rect.width) * canvas.width;
+          const y = ((evt.clientY - rect.top) / rect.height) * canvas.height;
+          return { x: clamp(x, 0, canvas.width), y: clamp(y, 0, canvas.height) };
+        }
+
+        function findStarIndexNear(pos, radius = 14) {
+          for (let i = stars.length - 1; i >= 0; i--) {
+            if (distance(stars[i], pos) <= radius) return i;
+          }
+          return -1;
+        }
+
+        function addStar(pos) {
+          pushHistory();
+          stars.push({ x: pos.x, y: pos.y, r: randInt(2, 4) });
+          draw();
+          updateCounts();
+        }
+
+        function addConnection(a, b) {
+          const key = a < b ? `${a}-${b}` : `${b}-${a}`;
+          const exists = connections.some((c) => {
+            const k = c.a < c.b ? `${c.a}-${c.b}` : `${c.b}-${c.a}`;
+            return k === key;
+          });
+          if (exists) return;
+
+          pushHistory();
+          connections.push({ a, b });
+          draw();
+          updateCounts();
+        }
+
+        function sprinkleStars() {
+          pushHistory();
+          const toAdd = clamp(18 - stars.length, 6, 18);
+          for (let i = 0; i < toAdd; i++) {
+            const pad = 22;
+            stars.push({
+              x: randInt(pad, canvas.width - pad),
+              y: randInt(pad, canvas.height - pad),
+              r: randInt(2, 4),
+            });
+          }
+          draw();
+          updateCounts();
+          statusEl.textContent = "Sprinkled stars. Switch to Connect to draw a constellation.";
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // subtle grid sparkle
+          ctx.save();
+          ctx.globalAlpha = 0.24;
+          ctx.fillStyle = "#1d4ed8";
+          for (let i = 0; i < 44; i++) {
+            const x = (i * 137) % canvas.width;
+            const y = (i * 83) % canvas.height;
+            ctx.beginPath();
+            ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+
+          // connections
+          ctx.save();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "rgba(29, 78, 216, 0.55)";
+          for (const c of connections) {
+            const a = stars[c.a];
+            const b = stars[c.b];
+            if (!a || !b) continue;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+          ctx.restore();
+
+          // selected preview line
+          if (selected.length >= 2) {
+            ctx.save();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "rgba(96, 165, 250, 0.75)";
+            ctx.beginPath();
+            const first = stars[selected[0]];
+            ctx.moveTo(first.x, first.y);
+            for (let i = 1; i < selected.length; i++) {
+              const s = stars[selected[i]];
+              ctx.lineTo(s.x, s.y);
+            }
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // stars
+          for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
+            const isSelected = selected.includes(i);
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r + (isSelected ? 2 : 0), 0, Math.PI * 2);
+            ctx.fillStyle = isSelected ? "#1d4ed8" : "#0b1b3a";
+            ctx.globalAlpha = isSelected ? 0.92 : 0.72;
+            ctx.fill();
+
+            ctx.globalAlpha = 0.38;
+            ctx.strokeStyle = isSelected ? "rgba(96, 165, 250, 0.95)" : "rgba(29, 78, 216, 0.35)";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+
+        function updateCounts() {
+          countsEl.textContent = `${stars.length} star${stars.length === 1 ? "" : "s"} • ${connections.length} line${
+            connections.length === 1 ? "" : "s"
+          }`;
+          undoBtn.disabled = history.length === 0;
+          saveBtn.disabled = stars.length < 2;
+        }
+
+        function loadLibrary() {
+          try {
+            const raw = storageGet(STORAGE_KEY);
+            const data = raw ? JSON.parse(raw) : [];
+            return Array.isArray(data) ? data : [];
+          } catch {
+            return [];
+          }
+        }
+
+        function saveLibrary(items) {
+          storageSet(STORAGE_KEY, JSON.stringify(items));
+        }
+
+        function formatDate(iso) {
+          try {
+            return new Date(iso).toLocaleString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          } catch {
+            return iso;
+          }
+        }
+
+        function renderLibrary() {
+          const items = loadLibrary();
+          libraryEl.innerHTML = "";
+          emptyEl.style.display = items.length ? "none" : "block";
+
+          for (const item of items) {
+            const el = document.createElement("div");
+            el.className = "item";
+            const title = document.createElement("h4");
+            title.textContent = item.name || "Untitled constellation";
+
+            const meta = document.createElement("div");
+            meta.className = "meta";
+            meta.textContent = `${item.stars?.length || 0} stars • ${item.connections?.length || 0} lines • saved ${formatDate(
+              item.createdAt
+            )}`;
+
+            const notes = document.createElement("div");
+            notes.className = "hint";
+            notes.textContent = item.notes ? item.notes : "—";
+
+            const actions = document.createElement("div");
+            actions.className = "actions";
+
+            const loadBtn = document.createElement("button");
+            loadBtn.className = "btn";
+            loadBtn.type = "button";
+            loadBtn.textContent = "Load";
+            loadBtn.addEventListener("click", () => {
+              pushHistory();
+              stars = (item.stars || []).map((s) => ({ x: s.x, y: s.y, r: s.r || 3 }));
+              connections = (item.connections || []).map((c) => ({ a: c.a, b: c.b }));
+              selected = [];
+              draw();
+              updateCounts();
+              nameInput.value = item.name || "";
+              notesInput.value = item.notes || "";
+              statusEl.textContent = `Loaded "${item.name || "Untitled"}".`;
+            });
+
+            const delBtn = document.createElement("button");
+            delBtn.className = "btn danger";
+            delBtn.type = "button";
+            delBtn.textContent = "Delete";
+            delBtn.addEventListener("click", () => {
+              const ok = confirm(`Delete "${item.name || "Untitled"}"?`);
+              if (!ok) return;
+              const next = loadLibrary().filter((x) => x.id !== item.id);
+              saveLibrary(next);
+              renderLibrary();
+              statusEl.textContent = "Deleted saved constellation.";
+            });
+
+            actions.appendChild(loadBtn);
+            actions.appendChild(delBtn);
+
+            el.appendChild(title);
+            el.appendChild(meta);
+            el.appendChild(notes);
+            el.appendChild(actions);
+            libraryEl.appendChild(el);
+          }
+        }
+
+        function generateNamePrompt() {
+          const nouns = [
+            "Kite",
+            "Lantern",
+            "Compass",
+            "Crown",
+            "River",
+            "Whale",
+            "Fox",
+            "Phoenix",
+            "Sail",
+            "Bridge",
+            "Butterfly",
+            "Aurora",
+            "Arrow",
+            "Spiral",
+            "Orchid",
+            "Catapult",
+          ];
+          const adjectives = [
+            "Blue",
+            "Icy",
+            "Hidden",
+            "Silver",
+            "Electric",
+            "Quiet",
+            "Luminous",
+            "Wandering",
+            "Midnight",
+            "Cloudless",
+            "Northern",
+            "Radiant",
+            "Distant",
+            "Tidal",
+            "Sapphire",
+          ];
+          const hooks = [
+            "named after a memory",
+            "inspired by a place you love",
+            "based on your favorite song",
+            "that looks like an animal",
+            "with a legend about bravery",
+            "with a story about curiosity",
+            "that marks a new beginning",
+          ];
+
+          const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+          const prompt = `Try: “The ${pick(adjectives)} ${pick(nouns)}” — ${pick(hooks)}.`;
+          return prompt;
+        }
+
+        function exportJson() {
+          const data = loadLibrary();
+          const blob = new Blob([JSON.stringify({ exportedAt: nowIso(), items: data }, null, 2)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "sky-lab-export.json";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          statusEl.textContent = "Exported JSON.";
+        }
+
+        async function importJson(file) {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          const incoming = Array.isArray(parsed) ? parsed : parsed?.items;
+          if (!Array.isArray(incoming)) throw new Error("Invalid JSON format");
+
+          const current = loadLibrary();
+          const byId = new Map(current.map((x) => [x.id, x]));
+
+          for (const item of incoming) {
+            if (!item || typeof item !== "object") continue;
+            const id = typeof item.id === "string" ? item.id : `import_${uuid()}`;
+            byId.set(id, {
+              id,
+              name: typeof item.name === "string" ? item.name : "Imported constellation",
+              notes: typeof item.notes === "string" ? item.notes : "",
+              createdAt: typeof item.createdAt === "string" ? item.createdAt : nowIso(),
+              stars: Array.isArray(item.stars) ? item.stars : [],
+              connections: Array.isArray(item.connections) ? item.connections : [],
+            });
+          }
+
+          saveLibrary([...byId.values()].sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1)));
+          renderLibrary();
+          statusEl.textContent = "Imported JSON.";
+        }
+
+        function saveCurrent() {
+          const name = nameInput.value.trim() || "Untitled constellation";
+          const notes = notesInput.value.trim();
+          const items = loadLibrary();
+          const entry = {
+            id: uuid(),
+            name,
+            notes,
+            createdAt: nowIso(),
+            stars: stars.map((s) => ({ x: s.x, y: s.y, r: s.r })),
+            connections: connections.map((c) => ({ a: c.a, b: c.b })),
+          };
+          items.unshift(entry);
+          saveLibrary(items.slice(0, 60));
+          renderLibrary();
+          statusEl.textContent = `Saved "${name}".`;
+        }
+
+        // Events
+        modePlaceBtn.addEventListener("click", () => setMode("place"));
+        modeConnectBtn.addEventListener("click", () => setMode("connect"));
+        undoBtn.addEventListener("click", undo);
+        clearBtn.addEventListener("click", () => {
+          const ok = confirm("Clear the current canvas?");
+          if (!ok) return;
+          clearAll();
+        });
+        randomizeBtn.addEventListener("click", sprinkleStars);
+
+        promptBtn.addEventListener("click", () => {
+          const prompt = generateNamePrompt();
+          statusEl.textContent = prompt;
+          if (!nameInput.value.trim()) {
+            const match = prompt.match(/“([^”]+)”/);
+            if (match && match[1]) nameInput.value = match[1];
+          }
+        });
+
+        saveBtn.addEventListener("click", () => {
+          if (stars.length < 2) {
+            statusEl.textContent = "Add at least two stars before saving.";
+            return;
+          }
+          saveCurrent();
+        });
+
+        exportBtn.addEventListener("click", exportJson);
+        importFile.addEventListener("change", async (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          try {
+            await importJson(file);
+          } catch (err) {
+            statusEl.textContent = `Import failed: ${err?.message || "invalid file"}.`;
+          } finally {
+            importFile.value = "";
+          }
+        });
+
+        canvas.addEventListener("click", (evt) => {
+          const pos = getMousePos(evt);
+
+          if (mode === "place") {
+            addStar(pos);
+            return;
+          }
+
+          const idx = findStarIndexNear(pos);
+          if (idx === -1) {
+            statusEl.textContent = "Click on a star to select it (switch to Place to add more).";
+            return;
+          }
+
+          // toggle selection
+          const existing = selected.indexOf(idx);
+          if (existing !== -1) {
+            selected.splice(existing, 1);
+            draw();
+            return;
+          }
+
+          selected.push(idx);
+          if (selected.length >= 2) {
+            const a = selected[selected.length - 2];
+            const b = selected[selected.length - 1];
+            addConnection(a, b);
+          } else {
+            draw();
+          }
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+
+          if (e.key === "p" || e.key === "P") setMode("place");
+          if (e.key === "c" || e.key === "C") setMode("connect");
+          if (e.key === "u" || e.key === "U") undo();
+          if (e.key === "Escape") clearSelection();
+        });
+
+        // Init
+        setMode("place");
+        renderLibrary();
+        sprinkleStars();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scratch — Stargazing</title>
+    <meta
+      name="description"
+      content="A scratch page about stargazing — demonstrates HTML/CSS skills (lists, anchor, image, YouTube, and Tableau embed)."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom stylesheet (created from scratch; no Bootstrap used on this page) -->
+    <link rel="stylesheet" href="scratch.css" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <div class="brand" id="top">Scratch Page</div>
+        <nav class="nav" aria-label="Scratch navigation">
+          <a href="index.html">Main</a>
+          <a href="resume.html">Résumé</a>
+          <a href="ai-app.html">AI App</a>
+          <a href="#tableau">Tableau</a>
+          <a href="#video">YouTube</a>
+          <a href="#lists">Lists</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="wrap">
+
+        <div class="grid">
+          <!-- Div #1 for positioning/styling -->
+          <section class="card half" aria-label="Image section">
+            <h2>Night sky illustration</h2>
+            <div class="media">
+              <div class="img-frame">
+                <img src="assets/stargazer1.svg" alt="Stylized night-sky scene with stars and a planet" />
+              </div>
+              <div>
+                <p class="muted">
+                  I like how stargazing mixes curiosity and patience: you can learn constellations,
+                  understand seasons, and notice patterns over time.
+                </p>
+                <p class="muted">
+                  On clear nights, a quick walk away from bright lights can make a big difference.
+                </p>
+                <a class="btn" href="#video">Jump to the YouTube video</a>
+                <a class="btn" href="ai-app.html">Open the AI web app</a>
+              </div>
+            </div>
+          </section>
+
+        <section class="card half" aria-label="Intro">
+          <h1>Stargazing: a simple hobby with a big sky</h1>
+          <p class="muted">
+            This scratch page is about something that fascinates me: looking up at the night sky. It also
+            demonstrates core HTML/CSS features: nested lists, an on-page anchor, a custom background, an
+            image, an embedded YouTube video, and a live embedded Tableau visualization.
+          </p>
+        </section>
+
+          <section class="card half" id="lists" aria-label="Nested lists">
+            <h2>What I bring to this</h2>
+            <ol class="muted">
+              <li>
+                Pick a spot
+                <ul>
+                  <li>Low light pollution (darker skies)</li>
+                  <li>Clear horizon (fewer trees/buildings)</li>
+                  <li>Comfort + safety</li>
+                </ul>
+              </li>
+              <li>
+                Bring basics
+                <ul>
+                  <li>Warm layers (it gets colder than you think)</li>
+                  <li>Phone with a red-light mode (optional)</li>
+                  <li>Binoculars (a great first “upgrade”)</li>
+                </ul>
+              </li>
+              <li>
+                Stay curious
+                <ul>
+                  <li>Learn one constellation at a time</li>
+                  <li>Track what you saw (date, sky conditions)</li>
+                </ul>
+              </li>
+            </ol>
+            <p class="muted">
+              On page anchor demo: <a href="#top">Back to top</a>.
+            </p>
+          </section>
+
+          <section class="card" id="video" aria-label="YouTube video">
+            <h2>YouTube: quick sky tour</h2>
+            <div class="embed" aria-label="Embedded YouTube player">
+              <iframe
+                src="https://www.youtube.com/embed/1h0y4v1VjYQ"
+                title="Night sky basics"
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </section>
+
+          <section class="card" id="tableau" aria-label="Tableau embed">
+            <h2>Tableau: live, interactive visualization</h2>
+
+            <div class="embed" aria-label="Embedded Tableau visualization">
+              <iframe
+                src="https://public.tableau.com/views/RegionalSampleWorkbook/Stocks?:showVizHome=no&:embed=true"
+                title="Tableau visualization"
+                loading="lazy"
+                allow="fullscreen"
+              ></iframe>
+            </div>
+          </section>
+        </div>
+
+        <div class="footer">
+          <div class="wrap footer-inner">
+            <div class="muted">Scratch page</div>
+            <div class="pill-row" aria-label="Footer links">
+              <a class="btn" href="index.html">Go to main page</a>
+              <a class="btn" href="#top">Back to top</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
